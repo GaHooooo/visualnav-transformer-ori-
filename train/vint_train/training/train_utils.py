@@ -666,9 +666,9 @@ def train_nomad(
             # Logging
             loss_cpu = loss.item()
             tepoch.set_postfix(loss=loss_cpu)
-            wandb.log({"total_loss": loss_cpu})
-            wandb.log({"dist_loss": dist_loss.item()})
-            wandb.log({"diffusion_loss": diffusion_loss.item()})
+            wandb.log({"total_loss(train)": loss_cpu, "dist_loss(train)": dist_loss.item(), "diffusion_loss(train)": diffusion_loss.item(), "epoch": epoch, "batch_id": epoch*num_batches+i},commit = True)
+            # wandb.log({"dist_loss": dist_loss.item()})
+            # wandb.log({"diffusion_loss": diffusion_loss.item()})
 
 
             if i % print_log_freq == 0:
@@ -695,7 +695,8 @@ def train_nomad(
                         print(f"(epoch {epoch}) (batch {i}/{num_batches - 1}) {logger.display()}")
 
                 if use_wandb and i % wandb_log_freq == 0 and wandb_log_freq != 0:
-                    wandb.log(data_log, commit=True)
+                    wandb.log(data_log, commit=False)
+                    wandb.log({"epoch": epoch}, commit=True)
 
             if image_log_freq != 0 and i % image_log_freq == 0:
                 visualize_diffusion_action_distribution(
@@ -755,6 +756,7 @@ def evaluate_nomad(
         eval_fraction (float): fraction of data to use for evaluation
         use_wandb (bool): whether to use wandb for logging
     """
+    alpha= 1e-4
     goal_mask_prob = torch.clip(torch.tensor(goal_mask_prob), 0, 1)
     ema_model = ema_model.averaged_model
     ema_model.eval()
@@ -786,6 +788,11 @@ def evaluate_nomad(
         "gc_multi_action_waypts_cos_sim": gc_multi_action_waypts_cos_sim_logger,
     }
     num_batches = max(int(num_batches * eval_fraction), 1)
+    rand_mask_loss_list=[]
+    no_mask_loss_list=[]
+    goal_mask_loss_list=[]
+
+
 
     with tqdm.tqdm(
         itertools.islice(dataloader, num_batches), 
@@ -870,9 +877,13 @@ def evaluate_nomad(
             loss_cpu = rand_mask_loss.item()
             tepoch.set_postfix(loss=loss_cpu)
 
-            wandb.log({"diffusion_eval_loss (random masking)": rand_mask_loss})
-            wandb.log({"diffusion_eval_loss (no masking)": no_mask_loss})
-            wandb.log({"diffusion_eval_loss (goal masking)": goal_mask_loss})
+            wandb.log({"diffusion_eval_loss (random masking)": rand_mask_loss},commit=False)
+            wandb.log({"diffusion_eval_loss (no masking)": no_mask_loss},commit=False)
+            wandb.log({"diffusion_eval_loss (goal masking)": goal_mask_loss},commit=False)
+            rand_mask_loss_list.append(rand_mask_loss.cpu().numpy())
+            no_mask_loss_list.append(no_mask_loss.cpu().numpy())
+            goal_mask_loss_list.append(goal_mask_loss.cpu().numpy())
+            wandb.log({"epoch": epoch}, commit=True)
 
             if i % print_log_freq == 0 and print_log_freq != 0:
                 losses = _compute_losses_nomad(
@@ -898,7 +909,8 @@ def evaluate_nomad(
                         print(f"(epoch {epoch}) (batch {i}/{num_batches - 1}) {logger.display()}")
 
                 if use_wandb and i % wandb_log_freq == 0 and wandb_log_freq != 0:
-                    wandb.log(data_log, commit=True)
+                    wandb.log(data_log, commit=False)
+                    wandb.log({"epoch": epoch}, commit=True)
 
             if image_log_freq != 0 and i % image_log_freq == 0:
                 visualize_diffusion_action_distribution(
@@ -919,6 +931,14 @@ def evaluate_nomad(
                     30,
                     use_wandb,
                 )
+
+        rand_mask_loss_mean=np.array(rand_mask_loss_list).mean()
+        no_mask_loss_list_mean=np.array(no_mask_loss_list).mean()
+        goal_mask_loss_mean=np.array(goal_mask_loss_list).mean()
+        wandb.log({"diffusion_eval_loss_mean (random masking)": rand_mask_loss_mean}, commit=False)
+        wandb.log({"diffusion_eval_loss_mean (no masking)": no_mask_loss_list_mean}, commit=False)
+        wandb.log({"diffusion_eval_loss_mean (goal masking)": goal_mask_loss_mean}, commit=False)
+        wandb.log({"epoch": epoch}, commit=True)
 
 
 # normalize data
@@ -1173,5 +1193,6 @@ def visualize_diffusion_action_distribution(
         plt.close(fig)
     if len(wandb_list) > 0 and use_wandb:
         wandb.log({f"{eval_type}_action_samples": wandb_list}, commit=False)
+        wandb.log({"epoch": epoch}, commit=True)
 
 

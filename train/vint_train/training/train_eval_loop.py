@@ -276,7 +276,7 @@ def train_eval_loop_nomad(
         wandb.log({
             "lr": optimizer.param_groups[0]["lr"],
         }, commit=False)
-
+        wandb.log({"epoch": epoch}, commit=True)
         
     # Flush the last set of eval logs
     wandb.log({})
