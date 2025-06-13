@@ -27,6 +27,7 @@ from vint_train.models.nomad.nomad import NoMaD, DenseNetwork
 from vint_train.models.nomad.nomad_vint import NoMaD_ViNT, replace_bn_with_gn
 from diffusion_policy.model.diffusion.conditional_unet1d import ConditionalUnet1D
 
+from vint_train.models.nomadmoe.nomad_moe import NoMaD_MOE#TODO
 
 from vint_train.data.vint_dataset import ViNT_Dataset
 from vint_train.training.train_eval_loop import (
@@ -192,6 +193,15 @@ def main(config):
                 patch_size=config["patch_size"],
                 mha_num_attention_heads=config["mha_num_attention_heads"],
                 mha_num_attention_layers=config["mha_num_attention_layers"],
+            )
+            vision_encoder = replace_bn_with_gn(vision_encoder)
+        elif config["vision_encoder"] == "nomad_moe":
+            vision_encoder = NoMaD_MOE(
+                obs_encoding_size=config["encoding_size"],
+                context_size=config["context_size"],
+                mha_num_attention_heads=config["mha_num_attention_heads"],
+                mha_num_attention_layers=config["mha_num_attention_layers"],
+                mha_ff_dim_factor=config["mha_ff_dim_factor"],
             )
             vision_encoder = replace_bn_with_gn(vision_encoder)
         else: 
