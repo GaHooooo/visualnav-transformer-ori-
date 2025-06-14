@@ -91,7 +91,7 @@ class SoftMoEEncoderLayer(nn.Module):
     def _ff_block(self, x: Tensor) -> Tensor:
         """Forward pass for the FeedForward block, which now includes a SoftMoE layer.
         Mostly copy-pasta from 'nn.TransformerEncoderLayer'.  The only difference
-        is swapping 'self.linear2' for 'self.moe'.
+        is swapping 'self.linear2' for 'self.moe'.#TODO 不应该是专家层有两个FFN吗
         """
         x = self.moe(self.dropout(self.activation(self.linear(x))))
         return self.dropout(x)

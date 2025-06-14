@@ -1,4 +1,4 @@
-name: nomad_train
+name: nomad_moe_train
 channels:
 - defaults
 - pytorch
@@ -8,6 +8,7 @@ dependencies:
 - numpy
 - matplotlib
 - ipykernel
+- safetensors
 - pip
 - pip:
   - torch
@@ -27,6 +28,7 @@ dependencies:
   - lmdb 
   - vit-pytorch
   - positional-encodings
+  - huggingface_hub==0.25.2 -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 
 

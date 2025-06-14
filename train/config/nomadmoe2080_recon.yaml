@@ -6,8 +6,8 @@ use_wandb: True # set to false if you don't want to log to wandb
 train: True
 batch_size: 100
 epochs: 100
-eval_batch_size: 5
-gpu_ids: [0]
+eval_batch_size: 100
+gpu_ids: [2]
 num_workers: 12
 lr: 1e-4
 optimizer: adamw
@@ -63,9 +63,9 @@ learn_angle: False
 image_size: [96, 96] # width, height
 datasets:
   recon:
-    data_folder: /home/gahho/dataset/recon_processed_small #/home/<username>/nomad_dataset/recon
-    train: /home/gahho/dataset/recon_nomad_splits_small/recon_processed/train/ #/home/<username>/data_splits/recon/train/ # path to train folder with traj_names.txt
-    test: /home/gahho/dataset/recon_nomad_splits_small/recon_processed/test #/home/<username>/data_splits/recon/test/ # path to test folder with traj_names.txt
+    data_folder: /home/huangshibo/nomad/dataset_way/recon #/home/gahho/dataset/recon_processed_small #/home/<username>/nomad_dataset/recon
+    train: /home/huangshibo/nomad/dataset_way/recon_splits/train #/home/gahho/dataset/recon_nomad_splits_small/recon_processed/train/ #/home/<username>/data_splits/recon/train/ # path to train folder with traj_names.txt
+    test: /home/huangshibo/nomad/dataset_way/recon_splits/test #/home/gahho/dataset/recon_nomad_splits_small/recon_processed/test #/home/<username>/data_splits/recon/test/ # path to test folder with traj_names.txt
     end_slack: 3 # because many trajectories end in collisions
     goals_per_obs: 1 # how many goals are sampled per observation
     negative_mining: True # negative mining from the ViNG paper (Shah et al.)

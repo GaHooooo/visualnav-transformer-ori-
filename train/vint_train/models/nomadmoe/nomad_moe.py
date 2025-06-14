@@ -11,8 +11,8 @@ class NoMaD_MOE(nn.Module):
     def __init__(
         self,
         context_size: int = 5,
-        num_experts: int = 4,
-        slots_per_expert: int = 1,
+        num_experts: int = 8,
+        slots_per_expert: int = 2,
         obs_encoder: Optional[str] = "efficientnet-b0",
         obs_encoding_size: Optional[int] = 512,
         mha_num_attention_heads: Optional[int] = 2,
@@ -57,6 +57,8 @@ class NoMaD_MOE(nn.Module):
             nhead=mha_num_attention_heads,
             num_experts=num_experts,
             slots_per_expert=slots_per_expert,
+            norm_first = True,
+            activation = 'gelu',
             #device=device,
             #dtype=dtype,
         )

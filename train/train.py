@@ -35,6 +35,8 @@ from vint_train.training.train_eval_loop import (
     train_eval_loop_nomad,
     load_model,
 )
+#离线训练
+os.environ["WANDB_MODE"]="offline"
 
 
 def main(config):
